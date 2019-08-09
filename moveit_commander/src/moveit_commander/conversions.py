@@ -31,20 +31,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # Author: Ioan Sucan
-
-import StringIO
+from io import StringIO
 from moveit_commander import MoveItCommanderException
 from geometry_msgs.msg import Pose, PoseStamped, Transform
 import rospy
 import tf
 
+
 def msg_to_string(msg):
-    buf = StringIO.StringIO()
+    buf = StringIO()
     msg.serialize(buf)
     return buf.getvalue()
 
+
 def msg_from_string(msg, data):
     msg.deserialize(data)
+
 
 def pose_to_list(pose_msg):
     pose = []
@@ -56,6 +58,7 @@ def pose_to_list(pose_msg):
     pose.append(pose_msg.orientation.z)
     pose.append(pose_msg.orientation.w)
     return pose
+
 
 def list_to_pose(pose_list):
     pose_msg = Pose()
@@ -80,12 +83,14 @@ def list_to_pose(pose_list):
         raise MoveItCommanderException("Expected either 6 or 7 elements in list: (x,y,z,r,p,y) or (x,y,z,qx,qy,qz,qw)")
     return pose_msg
 
+
 def list_to_pose_stamped(pose_list, target_frame):
     pose_msg = PoseStamped()
     pose_msg.pose = list_to_pose(pose_list)
     pose_msg.header.frame_id = target_frame
     pose_msg.header.stamp = rospy.Time.now()
     return pose_msg
+
 
 def transform_to_list(trf_msg):
     trf = []
@@ -97,6 +102,7 @@ def transform_to_list(trf_msg):
     trf.append(trf_msg.rotation.z)
     trf.append(trf_msg.rotation.w)
     return trf
+
 
 def list_to_transform(trf_list):
     trf_msg = Transform()

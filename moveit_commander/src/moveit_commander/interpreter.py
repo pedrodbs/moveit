@@ -40,6 +40,7 @@ import re
 import time
 import os.path
 
+
 class MoveGroupInfoLevel:
     FAIL = 1
     WARN = 2
@@ -47,15 +48,16 @@ class MoveGroupInfoLevel:
     INFO = 4
     DEBUG = 5
 
+
 class MoveGroupCommandInterpreter(object):
     """
     Interpreter for simple commands
     """
 
     DEFAULT_FILENAME = "move_group.cfg"
-    GO_DIRS = {"up" : (2,1), "down" : (2, -1), "z" : (2, 1),
-               "left" : (1, 1), "right" : (1, -1), "y" : (1, 1),
-               "forward" : (0, 1), "backward" : (0, -1), "back" : (0, -1), "x" : (0, 1) }
+    GO_DIRS = {"up": (2, 1), "down": (2, -1), "z": (2, 1),
+               "left": (1, 1), "right": (1, -1), "y": (1, 1),
+               "forward": (0, 1), "backward": (0, -1), "back": (0, -1), "x": (0, 1)}
 
     def __init__(self):
         self._gdict = {}
@@ -86,7 +88,8 @@ class MoveGroupCommandInterpreter(object):
             if len(self._group_name) > 0:
                 return self.execute_group_command(self._gdict[self._group_name], cmd)
             else:
-                return (MoveGroupInfoLevel.INFO, self.get_help() + "\n\nNo groups initialized yet. You must call the 'use' or the 'load' command first.\n")
+                return (MoveGroupInfoLevel.INFO,
+                        self.get_help() + "\n\nNo groups initialized yet. You must call the 'use' or the 'load' command first.\n")
 
     def execute_generic_command(self, cmd):
         if os.path.isfile("cmd/" + cmd):
@@ -145,17 +148,18 @@ class MoveGroupCommandInterpreter(object):
                     line = line.rstrip()
                     line_content = line
                     if self._trace:
-                        print ("%s:%d:  %s" % (filename, line_num, line_content))
+                        print("%s:%d:  %s" % (filename, line_num, line_content))
                     comment = line.find("#")
                     if comment != -1:
-                      line = line[0:comment].rstrip()
+                        line = line[0:comment].rstrip()
                     if line != "":
-                      self.execute(line.rstrip())
+                        self.execute(line.rstrip())
                     line_content = ""
                 return (MoveGroupInfoLevel.DEBUG, "OK")
             except MoveItCommanderException as e:
                 if line_num > 0:
-                    return (MoveGroupInfoLevel.WARN, "Error at %s:%d:  %s\n%s" % (filename, line_num, line_content, str(e)))
+                    return (
+                    MoveGroupInfoLevel.WARN, "Error at %s:%d:  %s\n%s" % (filename, line_num, line_content, str(e)))
                 else:
                     return (MoveGroupInfoLevel.WARN, "Processing " + filename + ": " + str(e))
             except:
@@ -204,7 +208,8 @@ class MoveGroupCommandInterpreter(object):
 
         if cmd == "joints":
             joints = g.get_joints()
-            return (MoveGroupInfoLevel.INFO, "\n" + "\n".join([str(i) + " = " + joints[i] for i in range(len(joints))]) + "\n")
+            return (
+            MoveGroupInfoLevel.INFO, "\n" + "\n".join([str(i) + " = " + joints[i] for i in range(len(joints))]) + "\n")
 
         if cmd == "show":
             return self.command_show(g)
@@ -249,7 +254,8 @@ class MoveGroupCommandInterpreter(object):
             return (MoveGroupInfoLevel.SUCCESS, "Cleared path constraints")
 
         if cmd == "tol" or cmd == "tolerance":
-            return (MoveGroupInfoLevel.INFO, "Joint = %0.6g, Position = %0.6g, Orientation = %0.6g" % g.get_goal_tolerance())
+            return (
+            MoveGroupInfoLevel.INFO, "Joint = %0.6g, Position = %0.6g, Orientation = %0.6g" % g.get_goal_tolerance())
 
         if cmd == "time":
             return (MoveGroupInfoLevel.INFO, str(g.get_planning_time()))
@@ -269,7 +275,8 @@ class MoveGroupCommandInterpreter(object):
             known = g.get_remembered_joint_values()
             if known.has_key(assign_match.group(2)):
                 g.remember_joint_values(assign_match.group(1), known[assign_match.group(2)])
-                return (MoveGroupInfoLevel.SUCCESS, assign_match.group(1) + " is now the same as " + assign_match.group(2))
+                return (
+                MoveGroupInfoLevel.SUCCESS, assign_match.group(1) + " is now the same as " + assign_match.group(2))
             else:
                 return (MoveGroupInfoLevel.WARN, "Unknown command: '" + cmd + "'")
 
@@ -278,7 +285,8 @@ class MoveGroupCommandInterpreter(object):
         if set_match:
             try:
                 g.remember_joint_values(set_match.group(1), [float(x) for x in set_match.group(2).split()])
-                return (MoveGroupInfoLevel.SUCCESS, "Remembered joint values [" + set_match.group(2) + "] under the name " + set_match.group(1))
+                return (MoveGroupInfoLevel.SUCCESS,
+                        "Remembered joint values [" + set_match.group(2) + "] under the name " + set_match.group(1))
             except:
                 return (MoveGroupInfoLevel.WARN, "Unable to parse joint value [" + set_match.group(2) + "]")
 
@@ -291,9 +299,10 @@ class MoveGroupCommandInterpreter(object):
                     val = known[component_match.group(1)]
                     val[int(component_match.group(2))] = float(component_match.group(3))
                     g.remember_joint_values(component_match.group(1), val)
-                    return (MoveGroupInfoLevel.SUCCESS, "Updated " + component_match.group(1) + "[" + component_match.group(2) + "]")
+                    return (MoveGroupInfoLevel.SUCCESS,
+                            "Updated " + component_match.group(1) + "[" + component_match.group(2) + "]")
                 except:
-                    return (MoveGroupInfoLevel.WARN, "Unable to parse index or value in '" + cmd +"'")
+                    return (MoveGroupInfoLevel.WARN, "Unable to parse index or value in '" + cmd + "'")
             else:
                 return (MoveGroupInfoLevel.WARN, "Unknown command: '" + cmd + "'")
 
@@ -316,9 +325,11 @@ class MoveGroupCommandInterpreter(object):
                     vals = g.get_random_joint_values()
                     g.set_joint_value_target(vals)
                     if g.go():
-                        return (MoveGroupInfoLevel.SUCCESS, "Moved to random target [" + " ".join([str(x) for x in vals]) + "]")
+                        return (
+                        MoveGroupInfoLevel.SUCCESS, "Moved to random target [" + " ".join([str(x) for x in vals]) + "]")
                     else:
-                        return (MoveGroupInfoLevel.FAIL, "Failed while moving to random target [" + " ".join([str(x) for x in vals]) + "]")
+                        return (MoveGroupInfoLevel.FAIL,
+                                "Failed while moving to random target [" + " ".join([str(x) for x in vals]) + "]")
                 else:
                     try:
                         g.set_named_target(clist[1])
@@ -346,7 +357,8 @@ class MoveGroupCommandInterpreter(object):
                     except:
                         return (MoveGroupInfoLevel.WARN, clist[1] + " is unknown")
                 if self._last_plan != None:
-                    if len(self._last_plan.joint_trajectory.points) == 0 and len(self._last_plan.multi_dof_joint_trajectory.points) == 0:
+                    if len(self._last_plan.joint_trajectory.points) == 0 and len(
+                            self._last_plan.multi_dof_joint_trajectory.points) == 0:
                         self._last_plan = None
                 dest_str = clist[1]
                 if vals != None:
@@ -418,7 +430,8 @@ class MoveGroupCommandInterpreter(object):
                     self._db_host = clist[1]
                     return (MoveGroupInfoLevel.SUCCESS, "Connected to " + self._db_host + ":" + str(self._db_port))
                 except:
-                    return (MoveGroupInfoLevel.WARN, "Unable to connect to '" + clist[1] + ":" + str(self._db_port) + "'")
+                    return (
+                    MoveGroupInfoLevel.WARN, "Unable to connect to '" + clist[1] + ":" + str(self._db_port) + "'")
             else:
                 return (MoveGroupInfoLevel.WARN, "Unknown command: '" + cmd + "'")
 
@@ -465,7 +478,8 @@ class MoveGroupCommandInterpreter(object):
                 except MoveItCommanderException as e:
                     return (MoveGroupInfoLevel.WARN, str(e))
                 except:
-                    return (MoveGroupInfoLevel.WARN, "Unable to parse X-Y-Z rotation  values '" + " ".join(clist[1:]) + "'")
+                    return (
+                    MoveGroupInfoLevel.WARN, "Unable to parse X-Y-Z rotation  values '" + " ".join(clist[1:]) + "'")
         if len(clist) >= 7:
             if clist[0] == "go":
                 self._last_plan = None
@@ -550,7 +564,8 @@ class MoveGroupCommandInterpreter(object):
         res.append("  execute             execute a previously computed motion plan")
         res.append("  go <name>           plan and execute a motion to the state <name>")
         res.append("  go rand             plan and execute a motion to a random state")
-        res.append("  go <dir> <dx>|      plan and execute a motion in direction up|down|left|right|forward|backward for distance <dx>")
+        res.append(
+            "  go <dir> <dx>|      plan and execute a motion in direction up|down|left|right|forward|backward for distance <dx>")
         res.append("  ground              add a ground plane to the planning scene")
         res.append("  id|which            display the name of the group that is operated on")
         res.append("  joints              display names of the joints in the active group")
@@ -587,27 +602,27 @@ class MoveGroupCommandInterpreter(object):
             known_vars = self.get_active_group().get_remembered_joint_values().keys()
             known_constr = self.get_active_group().get_known_constraints()
         groups = self._robot.get_group_names()
-        return {'go':['up', 'down', 'left', 'right', 'backward', 'forward', 'random'] + known_vars,
-                'help':[],
-                'record':known_vars,
-                'show':known_vars,
-                'wait':[],
-                'delete':known_vars,
+        return {'go': ['up', 'down', 'left', 'right', 'backward', 'forward', 'random'] + known_vars,
+                'help': [],
+                'record': known_vars,
+                'show': known_vars,
+                'wait': [],
+                'delete': known_vars,
                 'database': [],
-                'current':[],
-                'use':groups,
-                'load':[],
-                'save':[],
-                'pick':[],
-                'place':[],
-                'plan':known_vars,
-                'allow':['replanning', 'looking'],
-                'constrain':known_constr,
-                'vars':[],
-                'joints':[],
-                'tolerance':[],
-                'time':[],
-                'eef':[],
-                'execute':[],
-                'ground':[],
-                'id':[]}
+                'current': [],
+                'use': groups,
+                'load': [],
+                'save': [],
+                'pick': [],
+                'place': [],
+                'plan': known_vars,
+                'allow': ['replanning', 'looking'],
+                'constrain': known_constr,
+                'vars': [],
+                'joints': [],
+                'tolerance': [],
+                'time': [],
+                'eef': [],
+                'execute': [],
+                'ground': [],
+                'id': []}

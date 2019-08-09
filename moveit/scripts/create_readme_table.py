@@ -8,17 +8,19 @@ import requests
 import catkin_pkg
 from catkin_pkg.packages import find_packages
 
+
 def create_header(ros_ubuntu_dict):
-  ros_distros =  sorted(ros_ubuntu_dict.keys())
-  section_header = "## ROS Buildfarm\n"
-  header="MoveIt Package"
-  header_lines = '-'*len(header)
-  for ros in ros_distros:
-      source = ' '.join([ros.capitalize(), "Source"])
-      debian = ' '.join([ros.capitalize(), "Debian"])
-      header = ' | '.join([header, source, debian])
-      header_lines = ' | '.join([header_lines, '-'*len(source), '-'*len(debian)])
-  return '\n'.join([section_header, header, header_lines])
+    ros_distros = sorted(ros_ubuntu_dict.keys())
+    section_header = "## ROS Buildfarm\n"
+    header = "MoveIt Package"
+    header_lines = '-' * len(header)
+    for ros in ros_distros:
+        source = ' '.join([ros.capitalize(), "Source"])
+        debian = ' '.join([ros.capitalize(), "Debian"])
+        header = ' | '.join([header, source, debian])
+        header_lines = ' | '.join([header_lines, '-' * len(source), '-' * len(debian)])
+    return '\n'.join([section_header, header, header_lines])
+
 
 def define_urls(target, params):
     if target == 'src':
@@ -27,6 +29,7 @@ def define_urls(target, params):
     elif target == 'bin':
         params['job'] = "{R}bin_u{U}64__{package}__ubuntu_{ubuntu}_amd64__binary".format(**params)
         params['url'] = "{base_url}/view/{R}bin_u{U}64/job/{job}".format(**params)
+
 
 def create_line(package, ros_ubuntu_dict):
     ros_distros = sorted(ros_ubuntu_dict.keys())
@@ -47,6 +50,7 @@ def create_line(package, ros_ubuntu_dict):
 
     return line
 
+
 def create_moveit_buildfarm_table():
     """
     Creates MoveIt buildfarm badge table
@@ -55,7 +59,7 @@ def create_moveit_buildfarm_table():
     # combinations for supported distribitions. For instance, in Noetic,
     # remove {"indigo":"trusty"} and add {"noetic":"fbuntu"} with "fbuntu"
     # being whatever the 20.04 distro is named
-    supported_distro_ubuntu_dict = {"kinetic":"xenial", "melodic":"bionic"}
+    supported_distro_ubuntu_dict = {"kinetic": "xenial", "melodic": "bionic"}
 
     all_packages = sorted([package.name for _, package in find_packages(os.getcwd()).items()])
     moveit_packages = list()
@@ -69,8 +73,9 @@ def create_moveit_buildfarm_table():
 
     buildfarm_table = create_header(supported_distro_ubuntu_dict)
     for package in moveit_packages:
-      buildfarm_table += create_line(package, supported_distro_ubuntu_dict)
+        buildfarm_table += create_line(package, supported_distro_ubuntu_dict)
     print(buildfarm_table)
+
 
 if __name__ == "__main__":
     sys.exit(create_moveit_buildfarm_table())
